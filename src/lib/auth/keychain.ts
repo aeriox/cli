@@ -18,10 +18,14 @@ export type Backend = 'napi-rs' | 'file';
 const FALLBACK_DIR = path.join(os.homedir(), '.config', 'aeriox');
 const FALLBACK_FILE = path.join(FALLBACK_DIR, 'session.json');
 
+// File fallback is opt-in only. Previously this auto-fell-back when
+// stdout was not a TTY, but that meant any non-TTY context (CI, pipes,
+// systemd, sshd-spawned shell) silently wrote tokens to disk in
+// plaintext. Non-TTY callers must now explicitly set
+// AERIOX_NO_KEYCHAIN=1 to acknowledge the downgrade; otherwise a
+// keychain failure throws clearly.
 function shouldUseFile(): boolean {
-  if (process.env.AERIOX_NO_KEYCHAIN === '1') return true;
-  if (!process.stdout.isTTY) return true;
-  return false;
+  return process.env.AERIOX_NO_KEYCHAIN === '1';
 }
 
 function warnDegraded(): void {
@@ -66,7 +70,7 @@ export async function setSession(account: string, session: Session): Promise<Bac
 
   const keyring = await loadKeyring();
   if (!keyring) {
-    throw new Error('Keychain unavailable: @napi-rs/keyring failed to load. Set AERIOX_NO_KEYCHAIN=1 to use file fallback.');
+    throw new Error('Keychain unavailable: @napi-rs/keyring failed to load. Set AERIOX_NO_KEYCHAIN=1 to opt in to the ~/.config/aeriox/session.json file fallback (required for CI/headless contexts).');
   }
   try {
     const entry = new keyring.Entry(SERVICE, account);
@@ -86,7 +90,7 @@ export async function getSession(account: string): Promise<Session | null> {
 
   const keyring = await loadKeyring();
   if (!keyring) {
-    throw new Error('Keychain unavailable: @napi-rs/keyring failed to load. Set AERIOX_NO_KEYCHAIN=1 to use file fallback.');
+    throw new Error('Keychain unavailable: @napi-rs/keyring failed to load. Set AERIOX_NO_KEYCHAIN=1 to opt in to the ~/.config/aeriox/session.json file fallback (required for CI/headless contexts).');
   }
   try {
     const entry = new keyring.Entry(SERVICE, account);
@@ -109,7 +113,7 @@ export async function deleteSession(account: string): Promise<void> {
 
   const keyring = await loadKeyring();
   if (!keyring) {
-    throw new Error('Keychain unavailable: @napi-rs/keyring failed to load. Set AERIOX_NO_KEYCHAIN=1 to use file fallback.');
+    throw new Error('Keychain unavailable: @napi-rs/keyring failed to load. Set AERIOX_NO_KEYCHAIN=1 to opt in to the ~/.config/aeriox/session.json file fallback (required for CI/headless contexts).');
   }
   try {
     const entry = new keyring.Entry(SERVICE, account);

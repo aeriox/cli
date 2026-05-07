@@ -89,16 +89,33 @@ describe('keychain', () => {
     expect(back).toEqual(session);
   });
 
-  it('falls back to file when stdout is not a TTY', async () => {
+  it('does NOT auto-fall-back when stdout is not a TTY (opt-in only)', async () => {
+    // Previously a non-TTY stdout silently triggered file fallback.
+    // That auto-detection is removed: non-TTY callers must explicitly
+    // set AERIOX_NO_KEYCHAIN=1 to acknowledge plaintext disk storage.
+    // With AERIOX_NO_KEYCHAIN unset and the keyring loading fine, the
+    // keychain path is taken regardless of TTY.
     Object.defineProperty(process.stdout, 'isTTY', { value: false, configurable: true });
     delete process.env.AERIOX_NO_KEYCHAIN;
+    const { setSession } = await import('../../../src/lib/auth/keychain.js');
+    const session = { access_token: 'a', expires_at: 0, workspace_id: 'w' };
+    const backend = await setSession('default', session);
+    expect(backend).toBe('napi-rs');
+  });
+
+  it('uses file fallback when AERIOX_NO_KEYCHAIN=1 even with TTY', async () => {
+    Object.defineProperty(process.stdout, 'isTTY', { value: true, configurable: true });
+    process.env.AERIOX_NO_KEYCHAIN = '1';
     const { setSession } = await import('../../../src/lib/auth/keychain.js');
     const session = { access_token: 'a', expires_at: 0, workspace_id: 'w' };
     const backend = await setSession('default', session);
     expect(backend).toBe('file');
   });
 
-  it('throws when napi-rs throws AND TTY is available', async () => {
+  it('throws when keyring throws and AERIOX_NO_KEYCHAIN is unset (no implicit file fallback)', async () => {
+    // Even in a TTY, if the napi-rs keyring throws, the function MUST
+    // throw rather than silently writing tokens to disk. The error
+    // message recommends setting AERIOX_NO_KEYCHAIN=1 to opt in.
     Object.defineProperty(process.stdout, 'isTTY', { value: true, configurable: true });
     delete process.env.AERIOX_NO_KEYCHAIN;
     vi.resetModules();

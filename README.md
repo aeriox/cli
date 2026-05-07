@@ -51,7 +51,7 @@ Run `aeriox <command> --help` for full flag detail.
 | `AERIOX_BASE_URL` | Override API host (default `https://api.aeriox.co`). |
 | `AERIOX_OUTPUT_DIR` | Default download directory for generated assets. |
 | `AERIOX_NO_COLOR` | Disable ANSI color output. |
-| `AERIOX_NO_KEYCHAIN` | Force the `~/.config/aeriox/session.json` file fallback (chmod 0600). |
+| `AERIOX_NO_KEYCHAIN` | Force the `~/.config/aeriox/session.json` file fallback (chmod 0600). **Required for CI/headless use** — the CLI no longer auto-detects non-TTY contexts; if the OS keychain is unavailable and this is unset, login throws. |
 
 ## Documentation
 
