@@ -1,6 +1,6 @@
 {
   "name": "@aeriox-co/cli",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Reservation stub. The real AERIOX CLI ships at v1.0.0 — see https://github.com/aeriox/cli.",
   "author": "AERIOX LLC",
   "license": "MIT",
@@ -42,13 +42,27 @@
     ],
     "topicSeparator": " ",
     "topics": {
-      "auth": { "description": "Authenticate with AERIOX (login, logout, whoami)" },
-      "characters": { "description": "Manage character library entries" },
-      "prisms": { "description": "List and apply prism transforms" },
-      "jobs": { "description": "List, watch, and cancel jobs" },
-      "wallet": { "description": "View balance, top up, and audit transactions" },
-      "keys": { "description": "Manage API keys" },
-      "models": { "description": "List available models" }
+      "auth": {
+        "description": "Authenticate with AERIOX (login, logout, whoami)"
+      },
+      "characters": {
+        "description": "Manage character library entries"
+      },
+      "prisms": {
+        "description": "List and apply prism transforms"
+      },
+      "jobs": {
+        "description": "List, watch, and cancel jobs"
+      },
+      "wallet": {
+        "description": "View balance, top up, and audit transactions"
+      },
+      "keys": {
+        "description": "Manage API keys"
+      },
+      "models": {
+        "description": "List available models"
+      }
     }
   },
   "dependencies": {
