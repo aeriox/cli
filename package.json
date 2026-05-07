@@ -1,0 +1,73 @@
+{
+  "name": "@aeriox-co/cli",
+  "version": "0.0.0",
+  "description": "Reservation stub. The real AERIOX CLI ships at v1.0.0 — see https://github.com/aeriox/cli.",
+  "author": "AERIOX LLC",
+  "license": "MIT",
+  "homepage": "https://github.com/aeriox/cli",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aeriox/cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aeriox/cli/issues"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "bin": {
+    "aeriox": "./bin/run.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "bin",
+    "dist",
+    "oclif.manifest.json"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "prepack": "npm run build"
+  },
+  "oclif": {
+    "bin": "aeriox",
+    "dirname": "aeriox",
+    "commands": "./dist/commands",
+    "plugins": [
+      "@oclif/plugin-help",
+      "@oclif/plugin-plugins"
+    ],
+    "topicSeparator": " ",
+    "topics": {
+      "auth": { "description": "Authenticate with AERIOX (login, logout, whoami)" },
+      "characters": { "description": "Manage character library entries" },
+      "prisms": { "description": "List and apply prism transforms" },
+      "jobs": { "description": "List, watch, and cancel jobs" },
+      "wallet": { "description": "View balance, top up, and audit transactions" },
+      "keys": { "description": "Manage API keys" },
+      "models": { "description": "List available models" }
+    }
+  },
+  "dependencies": {
+    "@aeriox-co/api": "^1.0.0",
+    "@oclif/core": "^4",
+    "@oclif/plugin-help": "^6",
+    "@oclif/plugin-plugins": "^5",
+    "@napi-rs/keyring": "^1",
+    "open": "^10",
+    "chalk": "^5",
+    "ora": "^8",
+    "cli-table3": "^0.6",
+    "zod": "^3"
+  },
+  "devDependencies": {
+    "oclif": "^4",
+    "typescript": "^5",
+    "tsx": "^4",
+    "@types/node": "^20",
+    "vitest": "^2"
+  }
+}
