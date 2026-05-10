@@ -15,12 +15,27 @@ export default class Whoami extends Command {
     const { flags } = await this.parse(Whoami);
     try {
       const client = await getClient(flags.workspace ?? 'default');
-      const me = await client.apiKeys.getMe();
-      const wallet = await client.wallet.getWallet().catch(() => undefined);
+      const me = (await client.apiKeys.getMe()) as {
+        workspace?: { id?: string; name?: string; plan?: string };
+        apiKey?: { prefix?: string; scopes?: string[] };
+      };
+      const wallet = (await client.wallet.getWallet().catch(() => undefined)) as
+        | { balance?: { balance_usd?: number; balanceUsd?: number } }
+        | undefined;
+      // SDK remaps `api_key` → `apiKey`. Read from the nested shape; the
+      // ad-hoc `workspace_id` flat field never existed on the wire.
+      const balanceObj = (wallet?.balance ?? {}) as Record<string, unknown>;
+      const balanceUsd =
+        (typeof balanceObj.balance_usd === 'number' ? balanceObj.balance_usd : undefined) ??
+        (typeof balanceObj.balanceUsd === 'number' ? balanceObj.balanceUsd : undefined) ??
+        null;
       const data = {
-        workspace_id: (me as Record<string, unknown>).workspace_id ?? (me as Record<string, unknown>).workspaceId ?? null,
-        api_key_prefix: (me as Record<string, unknown>).api_key_prefix ?? null,
-        balance_usd: wallet ? (wallet as Record<string, unknown>).balance_usd ?? (wallet as Record<string, unknown>).balanceUsd ?? null : null,
+        workspace_id: me.workspace?.id ?? null,
+        workspace_name: me.workspace?.name ?? null,
+        plan: me.workspace?.plan ?? null,
+        api_key_prefix: me.apiKey?.prefix ?? null,
+        scopes: me.apiKey?.scopes ?? [],
+        balance_usd: balanceUsd,
       };
       if (flags.json) {
         printJson(data, { quiet: flags.quiet });
@@ -29,6 +44,8 @@ export default class Whoami extends Command {
           [data],
           [
             { header: 'workspace', get: (r) => String(r.workspace_id ?? '') },
+            { header: 'name', get: (r) => String(r.workspace_name ?? '') },
+            { header: 'plan', get: (r) => String(r.plan ?? '') },
             { header: 'api_key', get: (r) => String(r.api_key_prefix ?? '') },
             { header: 'balance_usd', get: (r) => String(r.balance_usd ?? '') },
           ],

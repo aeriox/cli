@@ -1,6 +1,6 @@
 {
   "name": "@aeriox-co/cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reservation stub. The real AERIOX CLI ships at v1.0.0 — see https://github.com/aeriox/cli.",
   "author": "AERIOX LLC",
   "license": "MIT",
